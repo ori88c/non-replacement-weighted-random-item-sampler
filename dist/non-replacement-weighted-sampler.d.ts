@@ -144,7 +144,7 @@ export declare class NonReplacementWeightedSampler<T> {
      */
     private _findCorrespondingRangeIndex;
     /**
-     * _findCorrespondingRangeIndex
+     * _restructureFromRemainedItems
      *
      * Rebuilds the internal state from the provided items. This operation is triggered when
      * the threshold of fruitless internal sample attempts is reached. Probabilistically,
