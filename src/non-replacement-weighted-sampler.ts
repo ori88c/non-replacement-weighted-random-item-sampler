@@ -75,9 +75,10 @@ export class NonReplacementWeightedSampler<T> {
      * ### Ownership Transfer
      * Ownership of the 'items' and 'respectiveWeights' arrays is transferred to the class upon instantiation.
      * The caller should **not modify** these arrays after passing them to the constructor.
-     * While cloning could prevent this, in most cases, transferring ownership is more efficient.
-     * If your use case requires retaining references to the original items for additional purposes,
-     * consider storing them in separate data structures.
+     * While cloning the arrays would prevent unintended modifications, transferring ownership is generally more
+     * efficient since callers rarely need to retain references for other purposes beyond sampling.  
+     * If your use case does require retaining the original items for additional purposes, consider storing a copy
+     * in a separate data structure.
      * 
      * @param items The array of items to sample from. The value 'undefined' is not allowed.
      * @param respectiveWeights The weights corresponding to each item, where respectiveWeights[i] is the weight
@@ -85,11 +86,12 @@ export class NonReplacementWeightedSampler<T> {
      * @param failedSampleAttemptsBeforeRestructure The threshold of failed sample attempts before triggering a
      *                                              restructuring operation. This value is set at instantiation
      *                                              and remains constant.
-     * @throws Error if validation fails, such as:
+     * @throws Error if validation fails; possible causes can be:
      *         - No items provided
      *         - A negative weight is provided
      *         - An 'undefined' item is provided
      *         - The length of items differs from the length of respectiveWeights
+     *         - Non-natural number provided for argument 'failedSampleAttemptsBeforeRestructure'
      */
     constructor(
         items: T[],
@@ -190,7 +192,7 @@ export class NonReplacementWeightedSampler<T> {
             if (item !== undefined) {
                 return item;
             }
-        } while (this._failedSamplesCounter < this._failedSampleAttemptsBeforeRestructure);
+        } while (++this._failedSamplesCounter < this._failedSampleAttemptsBeforeRestructure);
 
         // Filter out only remained items, as a pre-processing step before internal restructure.
         const respectiveWeights: number[] = [];
@@ -232,7 +234,6 @@ export class NonReplacementWeightedSampler<T> {
             return correspondingItem;
         }
 
-        ++this._failedSamplesCounter;
         return undefined;
     }
 
@@ -274,12 +275,12 @@ export class NonReplacementWeightedSampler<T> {
         items: T[],
         respectiveWeights: readonly number[]
     ): void {
-        const ascRangeEnds = new Array<number>(items.length);
-        let i = 0;
+        const ascRangeEnds = new Array<number>(items.length).fill(0);
+        let currIndex = 0;
         let weightsPrefixSum = 0;
         for (const weight of respectiveWeights) {
             weightsPrefixSum += weight;
-            ascRangeEnds[i++] = weightsPrefixSum;
+            ascRangeEnds[currIndex++] = weightsPrefixSum;
             // The ith item (0-indexed) is associated with the following imaginary range:
             // [previous prefix sum, current prefix sum)
             // Ranges are pairwise disjoint intervals with inclusive starts and exclusive ends.
