@@ -1,6 +1,6 @@
 {
   "name": "non-replacement-weighted-random-item-sampler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A weighted random item sampler (selector), where the probability of selecting an item is proportional to its weight, and every item is sampled exactly once (without repetition or replacement). The sampling method utilizes a binary-search optimization, making it suitable for performance-demanding applications where the set of items is large and the sampling frequency is high.",
   "repository": {
     "type": "git",
